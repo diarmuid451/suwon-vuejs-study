@@ -41,8 +41,9 @@ var cors = require("cors");
 var typeorm_1 = require("typeorm");
 var Product_1 = require("./entity/Product");
 var amqp = require("amqplib/callback_api");
+var axios_1 = require("axios");
 (0, typeorm_1.createConnection)().then(function (db) {
-    var productRepository = db.getRepository(Product_1.Product);
+    var productRepository = db.getMongoRepository(Product_1.Product);
     amqp.connect('amqps://pkuxggnp:SIwTJ382frVctPtwI7h7Lmzhumi-1IMd@dingo.rmq.cloudamqp.com/pkuxggnp', function (error0, connection) {
         if (error0) {
             throw error0;
@@ -51,11 +52,70 @@ var amqp = require("amqplib/callback_api");
             if (error1) {
                 throw error1;
             }
+            // channel.assertQueue('hello', {durable:false});
+            channel.assertQueue('product_created', { durable: false });
+            channel.assertQueue('product_updated', { durable: false });
+            channel.assertQueue('product_deleted', { durable: false });
             var app = express();
             app.use(cors({
                 origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200']
             }));
             app.use(express.json());
+            channel.consume('product_created', function (msg) { return __awaiter(void 0, void 0, void 0, function () {
+                var eventProduct, product;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            eventProduct = JSON.parse(msg.content.toString());
+                            product = new Product_1.Product();
+                            product.admin_id = parseInt(eventProduct.id);
+                            product.title = eventProduct.title;
+                            product.image = eventProduct.image;
+                            product.likes = eventProduct.likes;
+                            return [4 /*yield*/, productRepository.save(product)];
+                        case 1:
+                            _a.sent();
+                            console.log('product created');
+                            return [2 /*return*/];
+                    }
+                });
+            }); }, { noAck: true });
+            channel.consume('product_updated', function (msg) { return __awaiter(void 0, void 0, void 0, function () {
+                var eventProduct, product;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            eventProduct = JSON.parse(msg.content.toString());
+                            return [4 /*yield*/, productRepository.findOne({ admin_id: parseInt(eventProduct.id) })];
+                        case 1:
+                            product = _a.sent();
+                            productRepository.merge(product, {
+                                title: eventProduct.title,
+                                image: eventProduct.image,
+                                likes: eventProduct.likes
+                            });
+                            return [4 /*yield*/, productRepository.save(product)];
+                        case 2:
+                            _a.sent();
+                            console.log('product updated');
+                            return [2 /*return*/];
+                    }
+                });
+            }); }, { noAck: true });
+            channel.consume('product_deleted', function (msg) { return __awaiter(void 0, void 0, void 0, function () {
+                var admin_id;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            admin_id = parseInt(msg.content.toString());
+                            return [4 /*yield*/, productRepository.deleteOne({ admin_id: admin_id })];
+                        case 1:
+                            _a.sent();
+                            console.log('product deleted');
+                            return [2 /*return*/];
+                    }
+                });
+            }); }, { noAck: true });
             app.get('/api/products', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
                 var products;
                 return __generator(this, function (_a) {
@@ -63,82 +123,33 @@ var amqp = require("amqplib/callback_api");
                         case 0: return [4 /*yield*/, productRepository.find()];
                         case 1:
                             products = _a.sent();
-                            // channel.sendToQueue('hello', Buffer.from('hello'));
-                            return [2 /*return*/, res.json(products)];
-                    }
-                });
-            }); });
-            app.post('/api/products', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-                var product, result;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, productRepository.create(req.body)];
-                        case 1:
-                            product = _a.sent();
-                            return [4 /*yield*/, productRepository.save(product)];
-                        case 2:
-                            result = _a.sent();
-                            channel.sendToQueue('product_created', Buffer.from(JSON.stringify(result)));
-                            return [2 /*return*/, res.send(result)];
-                    }
-                });
-            }); });
-            app.get('/api/product/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-                var products;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, productRepository.findOne(req.params.id)];
-                        case 1:
-                            products = _a.sent();
-                            return [2 /*return*/, res.json(products)];
-                    }
-                });
-            }); });
-            app.put('/api/product/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-                var product, result;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, productRepository.findOne(req.params.id)];
-                        case 1:
-                            product = _a.sent();
-                            productRepository.merge(product, req.body);
-                            return [4 /*yield*/, productRepository.save(product)];
-                        case 2:
-                            result = _a.sent();
-                            channel.sendToQueue('product_updated', Buffer.from(JSON.stringify(result)));
-                            return [2 /*return*/, res.send(result)];
-                    }
-                });
-            }); });
-            app.delete('/api/product/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-                var result;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, productRepository.delete(req.params.id)];
-                        case 1:
-                            result = _a.sent();
-                            channel.sendToQueue('product_deleted', Buffer.from(req.params.id));
-                            return [2 /*return*/, res.send(result)];
+                            return [2 /*return*/, res.send(products)];
                     }
                 });
             }); });
             app.post('/api/product/:id/like', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-                var product, result;
+                var product;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0: return [4 /*yield*/, productRepository.findOne(req.params.id)];
                         case 1:
                             product = _a.sent();
+                            return [4 /*yield*/, axios_1.default.post("http://localhost:8000/api/product/".concat(product.admin_id, "/like"), {})];
+                        case 2:
+                            _a.sent();
                             product.likes++;
                             return [4 /*yield*/, productRepository.save(product)];
-                        case 2:
-                            result = _a.sent();
-                            return [2 /*return*/, res.send(result)];
+                        case 3:
+                            _a.sent();
+                            return [2 /*return*/, res.send(product)];
                     }
                 });
             }); });
-            console.log('Listening to port: 8000');
-            app.listen(8000);
+            // channel.consume('hello', async (msg)=>{
+            //     console.log(msg.content.toString());
+            // });
+            console.log('Listening to port: 8001');
+            app.listen(8001);
             process.on('beforeExit', function () {
                 console.log('closing');
                 connection.close();
