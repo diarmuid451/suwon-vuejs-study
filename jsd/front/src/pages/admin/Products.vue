@@ -1,0 +1,43 @@
+<template>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Image</th>
+              <th scope="col">Title</th>
+              <th scope="col">Likes</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="product in products" :key="product.id">
+              <td>{{product.id}}</td>
+              <td><img :src="product.image" height="50" /></td>
+              <td>{{product.title}}</td>
+              <td>{{product.likes}}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+</template>
+
+<script>
+import { ref, onMounted } from 'vue'
+    export default {
+        name: "Products",
+        setup() {
+          const products = ref([]); //ref: products가 변하면 화면단이 rendering 된다
+          onMounted( async () => {
+            const response = await fetch('http://localhost:8000/api/products');
+            const data = await response.json();
+
+            console.log(data);
+          })
+          return{
+            products
+          }
+        }
+    }
+</script>
