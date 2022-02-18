@@ -53,3 +53,24 @@
     4 plugin : 웹팩으로 빌드하고 나온 결과물에 대해 추가 기능을 제공하는 속성
     5 resolve : 웹팩으로 빌드할 때 해당 파일을 어떻게 해석되는지 정의하는 속성
 ```
+## 3. NPM
+``` bash
+# NPM(Node Package Manager)
+정의 : 전 세계 자바스크립트 라이브러리가 존재하는 공개 저장소
+
+# NPM 설치 명령어
+- npm install 
+    - --save 옵션 : package.json파일의 dependencies 속성에 라이브러리 이름 추가 
+    - --save-dev 옵션 : package.json파일의 devDependencies 속성에 라이브러리 이름 추가     
+    
+# 전역 설치 VS 지역설치
+    전역설치 : -global 옵션을 이용해 시스템 레벨에 설치 (-g 로도 가능, 마찬가지로 install 역시 i로 축약 가능)
+    지역 설치 : 해당 프로젝트에 설치
+    
+# NPM 커스텀 명령어
+    npm 설정 파일(package.json)의 script 속성 
+    - 필요에 따라 명렁어 추가해서 사용 가능 
+    
+    예) npm run dev : 
+    "webpack-dev-server --open --hot" 명령어를 입력한 것과 같은 효과
+```
