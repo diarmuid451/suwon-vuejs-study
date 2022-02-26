@@ -5,13 +5,15 @@
     <meta name="viewport"
           content="width-device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>구구단</title>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <title>좋아요</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 <body>
     <div id="root">
-        <div>좋아요</div>
-        <button>Like</button>
+        <!--v-if와 v-else는 서로 붙어 있어야 한다. 떨어지면 오류 발생        -->
+        <div v-if="liked">좋아요</div>
+        <div v-else>좋아요 눌러줘!!</div>
+        <button v-on:click="onClickLikeButton">Like</button>
     </div>
 </body>
 <script>
@@ -22,7 +24,7 @@ const app = new Vue({
         },
     methods : {
         onClickLikeButton() {
-            this.liked = true;
+            this.liked = !this.liked;
         },
     }
 });
