@@ -2,6 +2,8 @@ import { createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
 import Admin from '../pages/admin/Admin.vue';
 import Products from '../pages/admin/Products.vue'
 import Main from '../pages/Main.vue';
+import ProductsCreate from '../pages/admin/ProductsCreate.vue'
+
 const routes = [
   {
     path: '/',
@@ -13,7 +15,8 @@ const routes = [
       name: 'Admin',
       component: Admin,
       children: [
-        {path: 'products', component: Products}
+        {path: 'products', component: Products},
+{path: 'products/create', component: ProductsCreate}
       ]
   }
 ]
