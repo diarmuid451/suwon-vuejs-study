@@ -21,7 +21,7 @@ name: "ProductsCreate",
 setup() {
 const title = ref('');
 const image = ref('');
-const reouter = useRouter();
+const router = useRouter();
 const submit = async () => {
 await fetch('http://localhost:8000/api/products, {
 method: 'POST',
