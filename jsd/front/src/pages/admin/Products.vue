@@ -29,6 +29,7 @@
 
 <script lang="ts">
 import { ref, onMounted } from 'vue'
+import {Product} from '@/product'
     export default {
         name: "Products",
         setup() {
@@ -40,7 +41,7 @@ import { ref, onMounted } from 'vue'
           const del = async (id: number) => {
             if(confirm('Are you sure you want to delete this product?')){
 await fetch(`http://localhost:8000/api/products/${id}`, {method:'DELETE'});
-products.value = products.value.filter(p => p.id !== id);
+products.value = products.value.filter(p: Product => p.id !== id);
 }
           }
           return{
