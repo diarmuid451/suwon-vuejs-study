@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import { ref, onMounted } from 'vue'
-import {Product} from '@/product'
+import {Product} from '@/interfaces/product'
     export default {
         name: "Products",
         setup() {
