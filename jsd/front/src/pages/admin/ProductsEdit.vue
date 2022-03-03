@@ -1,4 +1,3 @@
-
 <template>
 <form @submit.prevent = "submit">
 <div class = "form-group">
@@ -14,17 +13,24 @@
 </template>
 
 <script>
-import {ref} from 'vue';
-import {useRouter} from 'vue-router'
+import {ref, onMounted} from 'vue';
+import {useRoute, useRouter} from 'vue-router'
 
 export default {
 name: "ProductsEdit",
 setup() {
 const title = ref('');
 const image = ref('');
-const reouter = useRouter();
+const router = useRouter();
+const route = useRoute();
+onMounted(async ()=>{
+const response = await fetch(`http://localhost:8000/api/products/${route.param.id}`);
+const product = await response.json();
+title.value = product.title;
+image.value = product.image;
+})
 const submit = async () => {
-await fetch('http://localhost:8000/api/products, {
+await fetch('http://localhost:8000/api/products', {
 method: 'POST',
 headers: {'Content-Type':'application/json'},
 body: JSON.stringify({title: title.value, image: image.value})
