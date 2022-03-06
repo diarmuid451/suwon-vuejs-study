@@ -9,21 +9,31 @@
 </head>
 <body>
     <div id="root">
-        <div>{{word}}</div>
-        <form v-on:submit="onSubmitForm">
-            <input type="text" ref="answer" v-model="value"/>
-            <button type="submit">입력!</button>
-        </form>
-        <div>{{result}}</div>
+        <word-relay start-word="제로초"></word-relay>
+        <word-relay start-word="초밥"></word-relay>
+        <word-relay start-word="밥오"></word-relay>
+        <word-relay start-word="오룡"></word-relay>
     </div>
 </body>
 <script>
-    const app = new Vue({
-        el: "#root",
-        data: {
-            word: '제로초',
-            result: '',
-            value: '',
+    Vue.component('wordRelay', {
+        template: `
+          <div>
+              <div>{{word}}</div>
+              <form v-on:submit="onSubmitForm">
+                <input type="text" ref="answer" v-model="value"/>
+                <button type="submit">입력!</button>
+              </form>
+              <div>{{result}}</div>
+          </div>
+        `,
+        props: ['startWord'],
+        data() {
+            return {
+                word: this.startWord,
+                result: '',
+                value: '',
+            };
         },
         methods: {
             onSubmitForm(e) {
@@ -40,6 +50,11 @@
                 }
             },
         },
+    })
+</script>
+<script>
+    const app = new Vue({
+        el: "#root",
     });
 </script>
 </html>
